@@ -15,7 +15,7 @@ export interface IProps {
 const CarItem = ({ car }: IProps) => {
     return (
         <Box display='flex' flexDirection='column' sx={{ pb: '4.2rem', mb: '3rem', ml: { xs: '16%', sm: '13%', md: '4.6rem' }, width: { xs: '17rem', sm: '18.5rem', md: '22.5rem' }, height: { xs: '29rem', sm: '28.5rem', md: '24.5rem' }, backgroundColor: '#fff', borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px' }}>
-            <Box component='img' src={car.imageUrl[0]} sx={{ borderRadius: '10px', height: { xs: '13rem', sm: '12.8rem', md: '15rem' } }} />
+            <Box component='img' src={car.imageUrl[0]} sx={{ borderRadius: '10px', height: { xs: '13.2rem', sm: '12.8rem', md: '15rem' } }} />
             <Typography variant='h6' sx={{ fontWeight: '600', fontSize: '24px', color: '#666', pl: '1rem', pt: '0.7rem' }}>{car.brand} {car.model}</Typography>
             <Box sx={{ pl: '1rem', pr: '3rem', pt: '1rem' }}>
                 <Box display='flex' justifyContent='space-between' flexDirection={{ xs: 'column', md: 'row' }}>
