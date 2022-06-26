@@ -9,7 +9,7 @@ import { Box, Container, Grid, Stack, Typography, TextField, InputAdornment, Ico
 import { FiSearch } from 'react-icons/fi';
 import { MdMinimize } from 'react-icons/md';
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { getCategories } from "../redux/category/actions/actionCreators";
@@ -17,6 +17,13 @@ import { getCars } from "../redux/car/actions/actionCreators";
 import { getCarsByFilter } from "../redux/car/actions/actionCreators";
 import { Category } from "../redux/category/reducers/categoryReducer";
 import { Car } from "../redux/car/reducers/carReducer";
+
+import apiService from "../redux/services/apiService";
+
+interface CountProps {
+    type: string,
+    count: number
+}
 
 const Vehicles = () => {
     const dispatch = useDispatch();
@@ -39,6 +46,11 @@ const Vehicles = () => {
     const indexOfFirstCar = indexOfLastCar - carsPerPage;
     const currentCars = carsObj.cars.slice(indexOfFirstCar, indexOfLastCar);
 
+    const [countTypeData, setCountTypeData] = useState<CountProps[]>([]);
+    const [countColorData, setCountColorData] = useState<CountProps[]>([]);
+    const [countFuelTypeData, setCountFuelTypeData] = useState<CountProps[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
     useEffect(() => {
@@ -48,6 +60,39 @@ const Vehicles = () => {
     useEffect(() => {
         dispatch(getCars() as any);
     }, [dispatch])
+
+    useEffect(() => {
+        let mounted = true;
+
+        const countByType = async () => {
+            setLoading(true);
+            const res = await apiService.get('/car/countByType');
+            setLoading(false);
+            if (mounted) setCountTypeData(res.data);
+        };
+
+        const countByColor = async () => {
+            setLoading(true);
+            const res = await apiService.get('/car/countByColor');
+            setLoading(false);
+            if (mounted) setCountColorData(res.data);
+        };
+
+        const countByFuelType = async () => {
+            setLoading(true);
+            const res = await apiService.get('/car/countByFuelType');
+            setLoading(false);
+            if (mounted) setCountFuelTypeData(res.data);
+        };
+
+        countByType();
+        countByColor();
+        countByFuelType();
+
+        return () => {
+            mounted = false;
+        };
+    }, [])
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         resetState();
@@ -123,7 +168,7 @@ const Vehicles = () => {
         setColors([]);
     }
 
-    if (isLoadingCat || isLoadingCar) {
+    if (isLoadingCat || isLoadingCar || loading) {
         return <Spinner />
     }
 
@@ -158,7 +203,7 @@ const Vehicles = () => {
                                 }}
                             />
                         </Box>
-                        <Box sx={{ backgroundColor: 'rgb(250, 250, 250)', mt: '2.4rem', display: 'block', mx: 'auto', width: { xs: '70%', sm: '45%', md: '20rem' }, height: (displayCategory && displayColor && displayFuel) ? '49.5rem' : (!displayCategory && !displayColor && !displayFuel) ? '15rem' : (displayFuel && !displayCategory && !displayColor) ? '20rem' : (displayFuel && displayColor && !displayCategory) ? '32.5rem' : (displayCategory && displayColor && !displayFuel) ? '43rem' : (displayCategory && displayFuel && !displayColor) ? '34.5rem' : '28.5rem', p: '0rem 1.7rem', borderRadius: '7px', border: '1px solid #B7B5B566', boxShadow: '0px 6px 18px -15px #111', }}>
+                        <Box sx={{ backgroundColor: 'rgb(250, 250, 250)', mt: '2.4rem', display: 'block', mx: 'auto', width: { xs: '70%', sm: '45%', md: '18.5rem' }, height: (displayCategory && displayColor && displayFuel) ? '47rem' : (!displayCategory && !displayColor && !displayFuel) ? '15rem' : (displayFuel && !displayCategory && !displayColor) ? '20rem' : (displayFuel && displayColor && !displayCategory) ? '32.5rem' : (displayCategory && displayColor && !displayFuel) ? '41.5rem' : (displayCategory && displayFuel && !displayColor) ? '34.5rem' : '28.5rem', p: '0rem 1.7rem', borderRadius: '7px', border: '1px solid #B7B5B566', boxShadow: '0px 6px 18px -15px #111', }}>
                             <Typography sx={{ fontWeight: 600, fontSize: '20px', my: '2rem' }}>Filter By</Typography>
                             <Box sx={{ mt: '1.5rem', mb: displayCategory ? '1rem' : '0rem' }} display='flex' alignItems='center' justifyContent='space-between'>
                                 <Typography sx={{ fontWeight: 500, fontSize: '17px', color: '#444' }}>Car Type</Typography>
@@ -167,16 +212,21 @@ const Vehicles = () => {
                             {displayCategory &&
                                 <>
                                     {categories && categories.map((c: Category) => (
-                                        <Box key={c._id} marginTop={1.5} className='checkboxPadding'>
-                                            <input
-                                                className="largerCheckbox"
-                                                value={c._id}
-                                                onChange={handleCategory}
-                                                checked={categoryIds.includes(c._id)}
-                                                type='checkbox'
-                                                id='check'
-                                                name='category' />
-                                            <label htmlFor="check" style={{ color: '#333' }}>{c.category}</label>
+                                        <Box key={c._id} marginTop={1.5} display='flex' justifyContent='space-between' alignItems='center' className='checkboxPadding'>
+                                            <Box>
+                                                <input
+                                                    className="largerCheckbox"
+                                                    value={c._id}
+                                                    onChange={handleCategory}
+                                                    checked={categoryIds.includes(c._id)}
+                                                    type='checkbox'
+                                                    id='check'
+                                                    name='category' />
+                                                <label htmlFor="check" style={{ color: '#111' }}>{c.category}</label>
+                                            </Box>
+                                            {countTypeData && countTypeData.map((item: CountProps) => (
+                                                <React.Fragment key={item.type}>{item.type === c.category && '(' + item.count + ')'}</React.Fragment>
+                                            ))}
                                         </Box>
                                     ))}
                                 </>
@@ -187,71 +237,101 @@ const Vehicles = () => {
                             </Box>
                             {displayColor &&
                                 <>
-                                    <Box className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Black"
-                                            onChange={handleColor}
-                                            checked={colors.includes("Black")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Black</label>
+                                    <Box className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Black"
+                                                onChange={handleColor}
+                                                checked={colors.includes("Black")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Black</label>
+                                        </Box>
+                                        {countColorData && countColorData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Black' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
-                                    <Box marginTop={1.5} className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="White"
-                                            onChange={handleColor}
-                                            checked={colors.includes("White")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>White</label>
+                                    <Box marginTop={1.5} className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="White"
+                                                onChange={handleColor}
+                                                checked={colors.includes("White")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>White</label>
+                                        </Box>
+                                        {countColorData && countColorData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'White' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
-                                    <Box marginTop={1.5} className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Gray"
-                                            onChange={handleColor}
-                                            checked={colors.includes("Gray")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Gray</label>
+                                    <Box marginTop={1.5} className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Gray"
+                                                onChange={handleColor}
+                                                checked={colors.includes("Gray")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Gray</label>
+                                        </Box>
+                                        {countColorData && countColorData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Gray' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
-                                    <Box marginTop={1.5} className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Blue"
-                                            onChange={handleColor}
-                                            checked={colors.includes("Blue")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Blue</label>
+                                    <Box marginTop={1.5} className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Blue"
+                                                onChange={handleColor}
+                                                checked={colors.includes("Blue")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Blue</label>
+                                        </Box>
+                                        {countColorData && countColorData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Blue' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
-                                    <Box marginTop={1.5} className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Red"
-                                            onChange={handleColor}
-                                            checked={colors.includes("Red")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Red</label>
+                                    <Box marginTop={1.5} className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Red"
+                                                onChange={handleColor}
+                                                checked={colors.includes("Red")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Red</label>
+                                        </Box>
+                                        {countColorData && countColorData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Red' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
-                                    <Box marginTop={1.5} className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Yellow"
-                                            onChange={handleColor}
-                                            checked={colors.includes("Yellow")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Yellow</label>
+                                    <Box marginTop={1.5} className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Yellow"
+                                                onChange={handleColor}
+                                                checked={colors.includes("Yellow")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Yellow</label>
+                                        </Box>
+                                        {countColorData && countColorData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Yellow' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
                                 </>
                             }
@@ -261,27 +341,37 @@ const Vehicles = () => {
                             </Box>
                             {displayFuel &&
                                 <>
-                                    <Box className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Petrol"
-                                            onChange={handleFuel}
-                                            checked={fuels.includes("Petrol")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Petrol</label>
+                                    <Box className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Petrol"
+                                                onChange={handleFuel}
+                                                checked={fuels.includes("Petrol")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Petrol</label>
+                                        </Box>
+                                        {countFuelTypeData && countFuelTypeData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Petrol' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
-                                    <Box marginTop={1.5} className='checkboxPadding'>
-                                        <input
-                                            className="largerCheckbox"
-                                            value="Diesel"
-                                            onChange={handleFuel}
-                                            checked={fuels.includes("Diesel")}
-                                            type='checkbox'
-                                            id='check'
-                                            name='color' />
-                                        <label htmlFor="check" style={{ color: '#333' }}>Diesel</label>
+                                    <Box marginTop={1.5} className='checkboxPadding' display='flex' justifyContent='space-between' alignItems='center'>
+                                        <Box>
+                                            <input
+                                                className="largerCheckbox"
+                                                value="Diesel"
+                                                onChange={handleFuel}
+                                                checked={fuels.includes("Diesel")}
+                                                type='checkbox'
+                                                id='check'
+                                                name='color' />
+                                            <label htmlFor="check" style={{ color: '#111' }}>Diesel</label>
+                                        </Box>
+                                        {countFuelTypeData && countFuelTypeData.map((item: CountProps) => (
+                                            <React.Fragment key={item.type}>{item.type === 'Diesel' && '(' + item.count + ')'}</React.Fragment>
+                                        ))}
                                     </Box>
                                 </>
                             }

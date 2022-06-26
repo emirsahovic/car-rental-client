@@ -14,7 +14,7 @@ const getCarsByFilter = async (arg: any) => {
 }
 
 const getCarById = async (carId: string) => {
-    const { data } = await apiService.get(`/car/${carId}`);
+    const { data } = await apiService.get(`/car/find/${carId}`);
 
     return data;
 }
