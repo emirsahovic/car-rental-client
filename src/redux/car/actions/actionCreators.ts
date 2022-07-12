@@ -37,6 +37,24 @@ export const getCarsByFilter = (arg: any) => async (dispatch: Dispatch<Action>) 
     }
 }
 
+export const sortCars = (value: string) => async (dispatch: Dispatch<Action>) => {
+    try {
+        dispatch({ type: ActionType.GET_CARS_REQUEST })
+
+        const data = await carService.sortCars(value);
+
+        dispatch({
+            type: ActionType.GET_CARS_SUCCESS,
+            payload: data
+        })
+    } catch (error: any) {
+        dispatch({
+            type: ActionType.GET_CARS_FAIL,
+            payload: (error.response && error.response.data && error.response.data.message) || error.message || error.toString()
+        })
+    }
+}
+
 export const getCarById = (carId: string) => async (dispatch: Dispatch<Action>) => {
     try {
         dispatch({ type: ActionType.GET_CAR_REQUEST })

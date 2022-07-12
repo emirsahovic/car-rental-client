@@ -7,6 +7,16 @@ const getCars = async () => {
     return data;
 }
 
+const sortCars = async (value: string) => {
+    let res;
+    if (value === 'mintomax') {
+        res = await apiService.get('/car/sort?asc=true');
+    } else if (value === 'maxtomin') {
+        res = await apiService.get('/car/sort?desc=true');
+    }
+    return res?.data;
+}
+
 const getCarsByFilter = async (arg: any) => {
     const { data } = await apiService.post('/filter/search', arg);
 
@@ -29,7 +39,8 @@ const carService = {
     getCars,
     getCarsByFilter,
     getCarById,
-    createCar
+    createCar,
+    sortCars
 }
 
 export default carService;
