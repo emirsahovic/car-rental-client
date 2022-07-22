@@ -117,7 +117,7 @@ const Register = () => {
                                     type='text'
                                     name="email"
                                     size='small'
-                                    label="Email"
+                                    label="Email Address"
                                     variant="outlined"
                                     sx={{ mt: '1.7rem' }} />
                                 <GrMail

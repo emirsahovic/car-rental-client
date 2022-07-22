@@ -3,9 +3,10 @@ import Navbar from "../components/Navbar";
 import Spinner from "../components/Spinner";
 import RentACarItem from "../components/RentACarItem";
 
-import { Container, Typography, TextField, FormControl, Select, MenuItem, InputLabel, Box, Button } from "@mui/material";
+import { Container, Typography, TextField, FormControl, Select, MenuItem, InputLabel, Box, Button, FormGroup } from "@mui/material";
 import * as Yup from 'yup';
 import emailjs from 'emailjs-com';
+import moment from "moment";
 
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -55,22 +56,32 @@ const Reservation = () => {
                 .typeError("Invalid date")
         }),
         onSubmit: (values: FormReservationValues, actions) => {
+            const price = moment(formik.values.returnDate).diff(formik.values.pickUpDate, 'days') * car.price;
             const carModel = car.brand + ' ' + car.model;
-            const carId2 = car._id;
             const { location, pickUpDate, returnDate } = values;
+
+            const emailValues = {
+                carModel,
+                name: values.name,
+                email: values.email,
+                location: values.location,
+                pickUpDate: values.pickUpDate,
+                returnDate: values.returnDate,
+                totalPrice: price
+            }
 
             const reservationData = {
                 carModel,
                 location,
                 pickUpDate,
                 returnDate,
-                carId: carId2
+                carId: car._id
             }
 
             dispatch(createReservation(reservationData) as any);
 
             actions.resetForm();
-            emailjs.send(process.env.REACT_APP_EMAIL_SERVICEID as string, process.env.REACT_APP_EMAIL_TEMPLATEID as string, values as unknown as Record<string, unknown>, process.env.REACT_APP_EMAIL_KEY as string)
+            emailjs.send(process.env.REACT_APP_EMAIL_SERVICEID as string, process.env.REACT_APP_EMAIL_TEMPLATEID as string, emailValues as unknown as Record<string, unknown>, process.env.REACT_APP_EMAIL_KEY as string)
                 .then((result) => { console.log(result.text); },
                     (error) => { console.log(error.text); });
         }
@@ -174,7 +185,23 @@ const Reservation = () => {
                                 helperText={formik.touched.returnDate && formik.errors.returnDate}
                                 label='Return date'
                             />
-                            <Button type='submit' variant='contained' sx={{ color: '#fff', fontWeight: 600, px: '4rem', py: '0.7rem', fontSize: '16px', display: 'block', m: { xs: '3rem auto', md: '4.5rem auto' } }}>
+                            <Typography variant='body1' sx={{ mt: '2.5rem', mb: '1.5rem', fontWeight: '600', fontSize: '22px', color: '#444' }}>
+                                Total Price:
+                            </Typography>
+                            <FormGroup row>
+                                <TextField
+                                    variant='outlined'
+                                    name="price"
+                                    inputProps={{ style: { fontSize: 22 } }}
+                                    disabled
+                                    size="small"
+                                    value={isNaN(moment(formik.values.returnDate).diff(formik.values.pickUpDate, 'days') * car.price) ? 0 : moment(formik.values.returnDate).diff(formik.values.pickUpDate, 'days') * car.price}
+                                />
+                                <Box sx={{ border: '1px solid #999', position: 'relative', width: '3.5rem', borderTopRightRadius: '5px', borderBottomRightRadius: '5px' }}>
+                                    <Typography variant='body2' sx={{ position: 'absolute', top: 14, left: 16, fontWeight: 'bold' }}>KM</Typography>
+                                </Box>
+                            </FormGroup>
+                            <Button type='submit' variant='contained' sx={{ color: '#fff', fontWeight: 600, px: '4rem', py: '0.7rem', fontSize: '16px', display: 'block', m: { xs: '3rem 0', md: '4.5rem 0' } }}>
                                 Submit
                             </Button>
                         </form>

@@ -74,7 +74,7 @@ const Login = () => {
                                 type='text'
                                 name="email"
                                 size='small'
-                                label="Email"
+                                label="Email Address"
                                 variant="outlined"
                                 sx={{ mt: '1.5rem' }} />
                             <TextField
