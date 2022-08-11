@@ -23,6 +23,8 @@ export const getCars = () => async (dispatch: Dispatch<Action>) => {
 
 export const getCarsByFilter = (arg: any) => async (dispatch: Dispatch<Action>) => {
     try {
+        dispatch({ type: ActionType.GET_CARS_REQUEST })
+
         const data = await carService.getCarsByFilter(arg);
 
         dispatch({
