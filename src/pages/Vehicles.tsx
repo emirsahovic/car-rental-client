@@ -5,11 +5,11 @@ import VehicleItem from "../components/VehicleItem";
 import PaginationVehicles from "../components/PaginationVehicles";
 import Sidebar from "../components/Sidebar";
 
-import { Box, Container, Grid, Stack, Typography, TextField, InputAdornment, IconButton, InputLabel, Select, MenuItem, OutlinedInput } from "@mui/material";
+import { Box, Container, Grid, Stack, Typography, TextField, InputAdornment, IconButton, Select, MenuItem } from "@mui/material";
 import { FiSearch } from 'react-icons/fi';
 import { MdMinimize } from 'react-icons/md';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { getCategories } from "../redux/category/actions/actionCreators";
@@ -40,10 +40,10 @@ const Vehicles = () => {
     const [displayFuel, toggleFuel] = useState<boolean>(true);
 
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [carsPerPage] = useState<number>(6);
+    const carsPerPage = 6;
 
-    const indexOfLastCar = currentPage * carsPerPage;
-    const indexOfFirstCar = indexOfLastCar - carsPerPage;
+    const indexOfLastCar = useMemo(() => currentPage * carsPerPage, [currentPage, carsPerPage]);
+    const indexOfFirstCar = useMemo(() => indexOfLastCar - carsPerPage, [indexOfLastCar, carsPerPage]);
     const currentCars = carsObj.cars.slice(indexOfFirstCar, indexOfLastCar);
 
     const [countTypeData, setCountTypeData] = useState<CountProps[]>([]);
