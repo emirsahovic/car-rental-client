@@ -49,9 +49,7 @@ const Vehicles = () => {
     const [countTypeData, setCountTypeData] = useState<CountProps[]>([]);
     const [countColorData, setCountColorData] = useState<CountProps[]>([]);
     const [countFuelTypeData, setCountFuelTypeData] = useState<CountProps[]>([]);
-    const [loadingType, setLoadingType] = useState<boolean>(false);
-    const [loadingColor, setLoadingColor] = useState<boolean>(false);
-    const [loadingFuel, setLoadingFuel] = useState<boolean>(false);
+    const [loadingNumbers, setLoadingNumbers] = useState<boolean>(false);
 
     const [sortValue, setSortValue] = useState<string>('');
 
@@ -68,30 +66,20 @@ const Vehicles = () => {
     useEffect(() => {
         let mounted = true;
 
-        const countByType = async () => {
-            setLoadingType(true);
-            const res = await apiService.get('/car/countByType');
-            if (mounted) setCountTypeData(res.data);
-            setLoadingType(false);
-        };
+        const countAll = async () => {
+            setLoadingNumbers(true);
+            const res1 = await apiService.get('/car/countByType');
+            if (mounted) setCountTypeData(res1.data);
 
-        const countByColor = async () => {
-            setLoadingColor(true);
-            const res = await apiService.get('/car/countByColor');
-            if (mounted) setCountColorData(res.data);
-            setLoadingColor(false);
-        };
+            const res2 = await apiService.get('/car/countByColor');
+            if (mounted) setCountColorData(res2.data);
 
-        const countByFuelType = async () => {
-            setLoadingFuel(true);
-            const res = await apiService.get('/car/countByFuelType');
-            if (mounted) setCountFuelTypeData(res.data);
-            setLoadingFuel(false);
-        };
+            const res3 = await apiService.get('/car/countByFuelType');
+            if (mounted) setCountFuelTypeData(res3.data);
+            setLoadingNumbers(false);
+        }
 
-        countByType();
-        countByColor();
-        countByFuelType();
+        countAll();
 
         return () => {
             mounted = false;
@@ -178,7 +166,7 @@ const Vehicles = () => {
         dispatch(sortCars(value) as any);
     }
 
-    if (isLoadingCat || isLoadingCar || loadingType || loadingColor || loadingFuel) {
+    if (isLoadingCat || isLoadingCar || loadingNumbers) {
         return <Spinner />
     }
 
@@ -248,7 +236,7 @@ const Vehicles = () => {
                                                     name='category' />
                                                 <label htmlFor="check" style={{ color: '#111' }}>{c.category}</label>
                                             </Box>
-                                            {countTypeData && !loadingType && countTypeData.map((item: CountProps) => (
+                                            {countTypeData && countTypeData.map((item: CountProps) => (
                                                 <React.Fragment key={item.type}>{item.type === c.category && '(' + item.count + ')'}</React.Fragment>
                                             ))}
                                         </Box>
@@ -273,7 +261,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Black</label>
                                         </Box>
-                                        {countColorData && !loadingColor && countColorData.map((item: CountProps) => (
+                                        {countColorData && countColorData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Black' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -289,7 +277,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>White</label>
                                         </Box>
-                                        {countColorData && !loadingColor && countColorData.map((item: CountProps) => (
+                                        {countColorData && countColorData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'White' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -305,7 +293,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Gray</label>
                                         </Box>
-                                        {countColorData && !loadingColor && countColorData.map((item: CountProps) => (
+                                        {countColorData && countColorData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Gray' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -321,7 +309,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Blue</label>
                                         </Box>
-                                        {countColorData && !loadingColor && countColorData.map((item: CountProps) => (
+                                        {countColorData && countColorData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Blue' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -337,7 +325,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Red</label>
                                         </Box>
-                                        {countColorData && !loadingColor && countColorData.map((item: CountProps) => (
+                                        {countColorData && countColorData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Red' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -353,7 +341,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Yellow</label>
                                         </Box>
-                                        {countColorData && !loadingColor && countColorData.map((item: CountProps) => (
+                                        {countColorData && countColorData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Yellow' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -377,7 +365,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Petrol</label>
                                         </Box>
-                                        {countFuelTypeData && !loadingFuel && countFuelTypeData.map((item: CountProps) => (
+                                        {countFuelTypeData && countFuelTypeData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Petrol' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
@@ -393,7 +381,7 @@ const Vehicles = () => {
                                                 name='color' />
                                             <label htmlFor="check" style={{ color: '#111' }}>Diesel</label>
                                         </Box>
-                                        {countFuelTypeData && !loadingFuel && countFuelTypeData.map((item: CountProps) => (
+                                        {countFuelTypeData && countFuelTypeData.map((item: CountProps) => (
                                             <React.Fragment key={item.type}>{item.type === 'Diesel' && '(' + item.count + ')'}</React.Fragment>
                                         ))}
                                     </Box>
