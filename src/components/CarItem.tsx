@@ -33,7 +33,7 @@ const CarItem = ({ car }: IProps) => {
                         <MdDateRange size={20} color='#666' />
                         <Typography sx={{ fontSize: '14px', color: '#777' }}>{car.manufacturingYear}</Typography>
                     </Stack>
-                    <Stack direction='row' spacing={1} marginRight={`${car.transmission === 'Manual' ? '0.6rem' : '1.7rem'}`} marginTop={{ xs: '0.6rem', md: '0' }}>
+                    <Stack direction='row' spacing={1} marginRight={`${car.transmission === 'Manual' ? '0.52rem' : '1.7rem'}`} marginTop={{ xs: '0.6rem', md: '0' }}>
                         <GiTrefoilShuriken size={20} color='#666' />
                         <Typography sx={{ fontSize: '14px', color: '#777' }}>{car.fuelType}</Typography>
                     </Stack>
