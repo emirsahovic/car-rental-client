@@ -33,7 +33,7 @@ const CarItem = ({ car }: IProps) => {
         src={car.imageUrl[0]}
         sx={{
           borderRadius: "10px",
-          minHeight: { xs: "12.5rem", md: "15rem" },
+          minHeight: { xs: "12.5rem", md: "14.3rem" },
           width: "100%",
           objectFit: "cover",
         }}
